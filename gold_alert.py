@@ -108,12 +108,18 @@ def extract_price(html):
                     if len(row) != len(header):
                         raise ValueError("Price row/header width mismatch")
                     value = row[columns[0]]
-                    if not re.fullmatch(r"₹?\s*[0-9][0-9,]*(?:\.[0-9]{1,2})?", value):
-                        raise ValueError("Unexpected price cell format")
-                    prices.append(money(value))
-    if len(prices) != 1:
-        raise ValueError("Expected exactly one current Hyderabad 22K one-gram price")
-    return prices[0]
+                    match = re.fullmatch(
+                        r"₹?\s*([0-9][0-9,]*(?:\.[0-9]{1,2})?)"
+                        r"(?:\s*\([+-]?\s*[0-9][0-9,]*(?:\.[0-9]{1,2})?\))?",
+                        value
+                    )
+                    if not match:
+                        raise ValueError(f"Unexpected price cell format: {value!r}")
+                    prices.append(money(match.group(1)))
+                    
+                        if len(prices) != 1:
+                            raise ValueError("Expected exactly one current Hyderabad 22K one-gram price")
+                        return prices[0]
 
 
 def fetch_page():
